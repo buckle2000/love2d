@@ -1,8 +1,6 @@
 /*=========================================================================*\
 * Simple exception support
 * LuaSocket toolkit
-*
-* RCS ID: $Id: except.c,v 1.8 2005/09/29 06:11:41 diego Exp $
 \*=========================================================================*/
 #include <stdio.h>
 
@@ -10,8 +8,6 @@
 #include "lauxlib.h"
 
 #include "except.h"
-
-extern void luax_register(lua_State *L, const char *name, const luaL_Reg *l);
 
 /*=========================================================================*\
 * Internal function prototypes.
@@ -23,7 +19,7 @@ static int finalize(lua_State *L);
 static int do_nothing(lua_State *L);
 
 /* except functions */
-static luaL_reg func[] = {
+static luaL_Reg func[] = {
     {"newtry",    global_newtry},
     {"protect",   global_protect},
     {NULL,        NULL}
@@ -96,6 +92,10 @@ static int global_protect(lua_State *L) {
 * Init module
 \*-------------------------------------------------------------------------*/
 int except_open(lua_State *L) {
-    luax_register(L, NULL, func);
+#if LUA_VERSION_NUM > 501 && !defined(LUA_COMPAT_MODULE)
+    luaL_setfuncs(L, func, 0);
+#else
+    luaL_openlib(L, NULL, func, 0);
+#endif
     return 0;
 }
